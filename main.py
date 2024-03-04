@@ -1,14 +1,13 @@
 import GUI
 
 def main(): 
-    GUI.init()
+    GUI.init(10, 4500)
 
     for i in range(450):
-        #effective range 0-350
-        GUI.update(i)
+        GUI.update(i*10)
 
     GUI.shutdown()
 
 
 if __name__=="__main__": 
-    main() 
+    main()

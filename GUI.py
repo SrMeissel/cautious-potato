@@ -1,8 +1,31 @@
 import dearpygui.dearpygui as dpg
 import dearpygui.demo as demo
 
+#used to set radius from arbitrary input
+min = 0
+max = 1
 
-def init():
+# Wheel prefab
+class Wheel:
+    def __init__(self, wheelKey):
+        with dpg.stage() as self._staging_container_id:
+            # self._id = dpg.add_drawlist(width=200, height=200, tag= wheelKey + "Drawing")
+            # self._id = dpg.draw_circle((100, 200/2), 100, tag= wheelKey, fill=[255, 255, 0], parent= wheelKey+ "Drawing")
+            # self._id = dpg.add_text("Force: NA", tag= wheelKey + "text")
+
+            with dpg.group() as group:
+                dpg.add_drawlist(width=200, height=200, tag= wheelKey + "Drawing")
+                dpg.draw_circle((100, 200/2), 100, tag= wheelKey, fill=[255, 255, 0], parent= wheelKey+ "Drawing")
+                dpg.add_text("Force: NA", tag= wheelKey + "text")
+            self._id = group
+
+
+
+def init(lowest, highest):
+    global min, max
+    min = lowest
+    max = highest
+
     dpg.create_context()
 
     # makes it look good
@@ -13,22 +36,30 @@ def init():
 
     # adds window content
     with dpg.window(tag="Primary Window", width=200, height=225, no_resize=True, no_title_bar=True) as window:
+        pass
+        # dpg.add_text("Force: NA", tag= "text")
 
-        dpg.add_text("Force: NA", tag= "text1")
+        # with dpg.drawlist(width=200, height=200, ):
+        #     dpg.draw_circle((100, 200/2), 100, tag= "Wheel", fill=[255, 255, 0])
 
-        with dpg.drawlist(width=200, height=200, ):
-            dpg.draw_circle((100, 200/2), 100, tag= "Wheel", fill=[255, 255, 0])
+    # Creates wheel instance and gives it a unique name and put it in the window
+    leftWheel = Wheel("Wheel")
+    dpg.move_item(leftWheel._id, parent="Primary Window")
 
     dpg.create_viewport(title='Cautious-Potato', width=600, height=600)
     dpg.setup_dearpygui()
     dpg.show_viewport()
-    # dpg.set_primary_window("Primary Window", True)
 
 def update(value):
-    dpg.configure_item("Wheel", radius=value/4)
-    dpg.configure_item("text1", default_value=f"Force: {value}")
+    # compute value within specified range
+    # https://www.arduino.cc/reference/en/language/functions/math/map/
+    # min = 10, max = 90
+    radius = (value - min) * (90 - 10) / (max - min) + 10
+
+    # update graphic
+    dpg.configure_item("Wheel", radius=radius)
+    dpg.configure_item("Wheeltext", default_value=f"Force: {value}")
     dpg.render_dearpygui_frame()
-    # print("frame rendered")
 
 def shutdown():
     dpg.destroy_context()
