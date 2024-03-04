@@ -5,10 +5,19 @@ import dearpygui.demo as demo
 def init():
     dpg.create_context()
 
-    with dpg.window(tag="Primary Window", width=225, height=300, no_resize=True, no_title_bar=True) as window:
-        dpg.add_text("Force: NA", tag= "text1", pos=(225/2, 0))
-        dpg.draw_circle((0, 0), 100, tag= "Wheel")
-        
+    # makes it look good
+    with dpg.theme() as global_theme:
+        with dpg.theme_component(dpg.mvAll):
+            dpg.add_theme_style(dpg.mvStyleVar_WindowPadding, 0, category=dpg.mvThemeCat_Core)
+    dpg.bind_theme(global_theme)
+
+    # adds window content
+    with dpg.window(tag="Primary Window", width=200, height=225, no_resize=True, no_title_bar=True) as window:
+
+        dpg.add_text("Force: NA", tag= "text1")
+
+        with dpg.drawlist(width=200, height=200, ):
+            dpg.draw_circle((100, 200/2), 100, tag= "Wheel", fill=[255, 255, 0])
 
     dpg.create_viewport(title='Cautious-Potato', width=600, height=600)
     dpg.setup_dearpygui()
