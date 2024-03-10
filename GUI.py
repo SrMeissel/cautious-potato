@@ -17,6 +17,7 @@ class Wheel:
             self._id = group
 
 def init(lowest, highest):
+    #I dont like python scoping :(
     global min, max
     min = lowest
     max = highest
@@ -31,21 +32,18 @@ def init(lowest, highest):
 
     # adds window content
     with dpg.window(tag="Primary Window", no_resize=False, no_title_bar=True) as window:
-        with dpg.table(header_row=False):
+        with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True, borders_outerV=True,
+                       policy=dpg.mvTable_SizingFixedFit, no_clip=True, width=420):
             dpg.add_table_column()
             dpg.add_table_column()
             with dpg.table_row():
-                with dpg.table_cell(tag="cell1"):
-                    pass
-                with dpg.table_cell(tag="cell2"):
-                    pass
+                dpg.add_table_cell(tag="cell1")
+                dpg.add_table_cell(tag="cell2")
             with dpg.table_row():
-                with dpg.table_cell(tag="cell3"):
-                    pass
-                with dpg.table_cell(tag="cell4"):
-                    pass
+                dpg.add_table_cell(tag="cell3")
+                dpg.add_table_cell(tag="cell4")
 
-    # Creates wheel instance and gives it a unique name and put it in the window
+    # Creates wheel instance and gives it a unique name and puts it in the window
     leftWheelFront = Wheel("WheelLeftFront")
     dpg.move_item(leftWheelFront._id, parent="cell1")
     
@@ -63,17 +61,27 @@ def init(lowest, highest):
     dpg.setup_dearpygui()
     dpg.show_viewport()
 
-def update(value):
+# Prive abstraction for update function, no longer renders frame
+def updateWheel(value, key):
     # compute value within specified range
     # https://www.arduino.cc/reference/en/language/functions/math/map/
     # min = 10, max = 90
     radius = (value - min) * (90 - 10) / (max - min) + 10
 
     # update graphic
-    dpg.configure_item("WheelLeftFront", radius=radius)
-    dpg.configure_item("WheelLeftFront" + "text", default_value=f"Force: {value}")
+    dpg.configure_item(key, radius=radius)
+    dpg.configure_item(key + "text", default_value=f"Force: {value}")
     
+def update(valueSet):
+    #update the values of each wheel
+    updateWheel(valueSet[0], "WheelLeftFront")
+    updateWheel(valueSet[1], "WheelRightFront")
+    updateWheel(valueSet[2], "WheelLeftBack")
+    updateWheel(valueSet[3], "WheelRightBack")
+    
+    #draw the damn thing
     dpg.render_dearpygui_frame()
+
 
 def shutdown():
     dpg.destroy_context()
