@@ -31,17 +31,34 @@ def init(lowest, highest):
     dpg.bind_theme(global_theme)
 
     # adds window content
-    with dpg.window(tag="Primary Window", no_resize=False, no_title_bar=True) as window:
-        with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True, borders_outerV=True,
-                       policy=dpg.mvTable_SizingFixedFit, no_clip=True, width=420):
-            dpg.add_table_column()
-            dpg.add_table_column()
-            with dpg.table_row():
-                dpg.add_table_cell(tag="cell1")
-                dpg.add_table_cell(tag="cell2")
-            with dpg.table_row():
-                dpg.add_table_cell(tag="cell3")
-                dpg.add_table_cell(tag="cell4")
+    with dpg.window(tag="Primary Window", no_resize=True, no_title_bar=True) as window:
+        with dpg.group(horizontal=True):
+            with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True, borders_outerV=True,
+                        policy=dpg.mvTable_SizingFixedFit, no_clip=True, width=420):
+                # Wheel grid
+                dpg.add_table_column()
+                with dpg.table_row():
+                    dpg.add_table_cell(tag="cell1")
+                    dpg.add_table_cell(tag="cell2")
+                dpg.add_table_column()
+                with dpg.table_row():
+                    dpg.add_table_cell(tag="cell3")
+                    dpg.add_table_cell(tag="cell4")
+            with dpg.group():
+                dpg.add_button(label="Start")
+                with dpg.group():
+                    dpg.add_text("Left Front")
+                    dpg.add_text("Right Front")
+                    dpg.add_text("Left Back")
+                    dpg.add_text("Right Back")
+
+                with dpg.plot(label="Normal Forces", height=350, width=350, no_menus=True, no_mouse_pos=True):
+                    dpg.add_plot_axis(dpg.mvXAxis, label="x", no_tick_labels=True, no_tick_marks=True, no_gridlines=True)
+                    dpg.add_plot_axis(dpg.mvYAxis, label="y", tag="y_axis", no_tick_labels=True, no_tick_marks=True, no_gridlines=True)
+
+                    dpg.add_line_series([], [], label="0.5 + 0.5 * sin(x)", parent="y_axis")
+            
+
 
     # Creates wheel instance and gives it a unique name and puts it in the window
     leftWheelFront = Wheel("WheelLeftFront")
@@ -57,7 +74,7 @@ def init(lowest, highest):
     dpg.move_item(rightWheelBack._id, parent="cell4")
     
     dpg.set_primary_window("Primary Window", True)
-    dpg.create_viewport(title='Cautious-Potato', width=600, height=600)
+    dpg.create_viewport(title='Cautious-Potato', width=800, height=540)
     dpg.setup_dearpygui()
     dpg.show_viewport()
 
