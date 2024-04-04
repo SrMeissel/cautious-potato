@@ -1,9 +1,16 @@
 import dearpygui.dearpygui as dpg
-import dearpygui.demo as demo
+from datetime import datetime
 
 #used to set radius from arbitrary input
 min = 0
 max = 1
+
+# Plot data
+dataX = []
+dataY = []
+
+#time at GUI init
+startTime = 0
 
 # Wheel prefab
 class Wheel:
@@ -18,9 +25,10 @@ class Wheel:
 
 def init(lowest, highest):
     #I dont like python scoping :(
-    global min, max
+    global min, max, startTime
     min = lowest
     max = highest
+    startTime = datetime.now()
 
     dpg.create_context()
 
@@ -45,7 +53,8 @@ def init(lowest, highest):
                     dpg.add_table_cell(tag="cell3")
                     dpg.add_table_cell(tag="cell4")
             with dpg.group():
-                dpg.add_button(label="Start")
+                dpg.add_button(label="Start", tag="Start")
+                dpg.add_button(label="Stop", tag="Stop")
                 with dpg.group():
                     dpg.add_text("Left Front")
                     dpg.add_text("Right Front")
@@ -53,10 +62,10 @@ def init(lowest, highest):
                     dpg.add_text("Right Back")
 
                 with dpg.plot(label="Normal Forces", height=350, width=350, no_menus=True, no_mouse_pos=True):
-                    dpg.add_plot_axis(dpg.mvXAxis, label="x", no_tick_labels=True, no_tick_marks=True, no_gridlines=True)
+                    dpg.add_plot_axis(dpg.mvXAxis, label="x", tag="x_axis_1" , no_tick_labels=True, no_tick_marks=True, no_gridlines=True)
                     dpg.add_plot_axis(dpg.mvYAxis, label="y", tag="y_axis", no_tick_labels=True, no_tick_marks=True, no_gridlines=True)
 
-                    dpg.add_line_series([], [], label="0.5 + 0.5 * sin(x)", parent="y_axis")
+                    dpg.add_line_series([], [], label="0.5 + 0.5 * sin(x)", parent="y_axis", tag="plot", )
             
 
 
@@ -90,15 +99,28 @@ def updateWheel(value, key):
     dpg.configure_item(key + "text", default_value=f"Force: {value}")
     
 def update(valueSet):
+    global dataX, dataY, startTime
+
     #update the values of each wheel
     updateWheel(valueSet[0], "WheelLeftFront")
     updateWheel(valueSet[1], "WheelRightFront")
     updateWheel(valueSet[2], "WheelLeftBack")
     updateWheel(valueSet[3], "WheelRightBack")
+
+    dataY.append(valueSet[3])
+    dataX.append((datetime.now()-startTime).total_seconds())
+    dpg.set_value('plot', [dataX, dataY])
+    dpg.fit_axis_data('x_axis_1')
+    dpg.fit_axis_data('y_axis')
     
     #draw the damn thing
     dpg.render_dearpygui_frame()
 
+def setStartButtonCallback(callback):
+    dpg.set_item_callback("Start", callback)
+
+def setStopButtonCallback(callback):
+    dpg.set_item_callback("Stop", callback)
 
 def shutdown():
     dpg.destroy_context()
